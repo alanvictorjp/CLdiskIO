@@ -30,7 +30,7 @@ read -p 'Opção: ' opt
 
 dev=$(echo "$ls" | sed -n "${opt}p" | sed 's/^.*dev\/\([a-z]d[a-z]\).*/\1/')
 [[ -d /sys/block/$dev ]] || {
-    echo 'Dispositivo nÃ£o conectado!';
+    echo 'Dispositivo nao conectado!';
     exit 1;
 }
 
