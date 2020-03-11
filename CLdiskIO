@@ -26,7 +26,7 @@ while read i ; do
 done
 
 read -p 'Opção: ' opt 
-[[ $opt =~ ^[0-9]$ && $opt -le $lines ]] || { echo "NÃºmero invalido!"; exit 0 ; } 
+[[ $opt =~ ^[0-9]$ && $opt -le $lines ]] || { echo "Valor invalido!"; exit 0 ; } 
 
 dev=$(echo "$ls" | sed -n "${opt}p" | sed 's/^.*dev\/\([a-z]d[a-z]\).*/\1/')
 [[ -d /sys/block/$dev ]] || {
