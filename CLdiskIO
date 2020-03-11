@@ -1,0 +1,49 @@
+#!/bin/bash                                                                                                                                                                                    
+# CLdiskIO
+#
+# Ferramenta auxiliar do pacote/programa iostat
+# Mostra em tempo real o uso de disco
+# Guardando as informações em log
+#
+# alanvictorjp gmail com
+# 21/06/2019 ~ 11/03/2020
+
+source /etc/funcoesCL
+CLcores --ativar
+tmp='/run/CLdiskIO'
+log='/var/log/CLdiskIO.log'
+null='/dev/null'
+which iostat &> $null || { echo "Pacote sysstat não instalado!"; exit 1; }
+
+a=1
+ls=$(fdisk -l 2> $null | grep '^Disco\|Disk \/dev' | sed 's/,\s[0-9]\{4,\}.*//g')
+lines=$(echo "$ls" | wc -l)
+
+echo "$ls" | \
+while read i ; do
+    echo [ $a ] $i
+    a=$(($a + 1))
+done
+
+read -p 'Opção: ' opt 
+[[ $opt =~ ^[0-9]$ && $opt -le $lines ]] || { echo "NÃºmero invalido!"; exit 0 ; } 
+
+dev=$(echo "$ls" | sed -n "${opt}p" | sed 's/^.*dev\/\([a-z]d[a-z]\).*/\1/')
+[[ -d /sys/block/$dev ]] || {
+    echo 'Dispositivo nÃ£o conectado!';
+    exit 1;
+}
+
+disco=$dev
+
+while : ; do
+    data=$(date "+%d/%m/%Y %H:%M:%S")
+    iostat -h -N -x 1 2 | grep "${disco}$" | tail -1 | sed "s/^.*\s\([0-9]\+,[0-9]%\)\s$disco/\1/" > $tmp
+    temp=$(cat $tmp)
+    echo -n "[$data] -- $disco = $temp"
+                clear
+                echo "[$data] -- $disco = $temp" >> $log
+                eco_branco "CLdiskIO em [ $disco ]\n"
+                eco_branco "===========================\n"
+                eco_verde_claro "[$data] -- $temp\n"
+done
